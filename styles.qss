@@ -1,0 +1,197 @@
+/* 财务计算器样式表 */
+
+/* 主窗口背景 */
+QMainWindow {
+    background-color: #f0f0f0;
+}
+
+/* 标题标签 */
+QLabel#label {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+    padding: 10px;
+    background-color: transparent;
+}
+
+/* 普通标签 */
+QLabel {
+    font-size: 14px;
+    color: #34495e;
+}
+
+/* 显示区域 */
+QLineEdit {
+    background-color: white;
+    border: 2px solid #bdc3c7;
+    border-radius: 5px;
+    padding: 8px;
+    font-size: 16px;
+    color: #2c3e50;
+}
+
+QLineEdit:focus {
+    border-color: #3498db;
+}
+
+/* 数字按钮 */
+QPushButton {
+    background-color: #ecf0f1;
+    border: 1px solid #bdc3c7;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 16px;
+    color: #2c3e50;
+    min-height: 40px;
+}
+
+QPushButton:hover {
+    background-color: #d5dbdb;
+    border-color: #3498db;
+}
+
+QPushButton:pressed {
+    background-color: #bdc3c7;
+}
+
+/* 运算符按钮 */
+QPushButton#pushButton_add,
+QPushButton#pushButton_minu,
+QPushButton#pushButton_mul,
+QPushButton#pushButton_div {
+    background-color: #3498db;
+    color: white;
+    font-weight: bold;
+}
+
+QPushButton#pushButton_add:hover,
+QPushButton#pushButton_minu:hover,
+QPushButton#pushButton_mul:hover,
+QPushButton#pushButton_div:hover {
+    background-color: #2980b9;
+}
+
+QPushButton#pushButton_add:pressed,
+QPushButton#pushButton_minu:pressed,
+QPushButton#pushButton_mul:pressed,
+QPushButton#pushButton_div:pressed {
+    background-color: #2470a0;
+}
+
+/* 清除按钮 */
+QPushButton#pushButton_c {
+    background-color: #e74c3c;
+    color: white;
+    font-weight: bold;
+}
+
+QPushButton#pushButton_c:hover {
+    background-color: #c0392b;
+}
+
+QPushButton#pushButton_c:pressed {
+    background-color: #a93226;
+}
+
+/* 退格按钮 */
+QPushButton#pushButton_rm {
+    background-color: #e67e22;
+    color: white;
+    font-weight: bold;
+}
+
+QPushButton#pushButton_rm:hover {
+    background-color: #d35400;
+}
+
+QPushButton#pushButton_rm:pressed {
+    background-color: #b84900;
+}
+
+/* 计算按钮 */
+QPushButton#pushButton_cal {
+    background-color: #27ae60;
+    color: white;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+QPushButton#pushButton_cal:hover {
+    background-color: #219653;
+}
+
+QPushButton#pushButton_cal:pressed {
+    background-color: #1e8a49;
+}
+
+/* 财务计算按钮 */
+QPushButton#pushButton_simple,
+QPushButton#pushButton_compound {
+    background-color: #9b59b6;
+    color: white;
+    font-weight: bold;
+}
+
+QPushButton#pushButton_simple:hover,
+QPushButton#pushButton_compound:hover {
+    background-color: #8e44ad;
+}
+
+QPushButton#pushButton_simple:pressed,
+QPushButton#pushButton_compound:pressed {
+    background-color: #7d3c98;
+}
+
+/* 财务参数设置按钮 */
+QPushButton#pushButton {
+    background-color: #16a085;
+    color: white;
+    font-weight: bold;
+    min-width: 120px;
+}
+
+QPushButton#pushButton:hover {
+    background-color: #138d75;
+}
+
+QPushButton#pushButton:pressed {
+    background-color: #117a64;
+}
+
+/* 状态栏 */
+QStatusBar {
+    background-color: #34495e;
+    color: white;
+    border: none;
+}
+
+/* 对话框样式 */
+QDialog {
+    background-color: #f0f0f0;
+}
+
+QDialog QLabel {
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+QDialog QLineEdit {
+    background-color: white;
+    border: 1px solid #bdc3c7;
+    border-radius: 3px;
+    padding: 5px;
+}
+
+QDialog QPushButton {
+    min-width: 80px;
+    padding: 5px 15px;
+}
+
+QDialog QPushButton:hover {
+    background-color: #3498db;
+    color: white;
+}
+
+QDialog QPushButton:pressed {
+    background-color: #2980b9;
+}
