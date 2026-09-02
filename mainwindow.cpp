@@ -401,12 +401,25 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
     /*
      * 拦截按钮的鼠标按下事件：启动拖拽
+     * 只允许数字(0-9)、小数点(.)和运算符(+,-,×,÷)按钮支持拖拽
      */
     if (event->type() == QEvent::MouseButtonPress) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
         QPushButton *btn = qobject_cast<QPushButton*>(obj);
         
-        if (btn && mouseEvent->button() == Qt::LeftButton) {
+        // 只允许特定的按钮支持拖拽
+        bool isDraggable = btn && (
+            btn == ui->pushButton_0 || btn == ui->pushButton_1 ||
+            btn == ui->pushButton_2 || btn == ui->pushButton_3 ||
+            btn == ui->pushButton_4 || btn == ui->pushButton_5 ||
+            btn == ui->pushButton_6 || btn == ui->pushButton_7 ||
+            btn == ui->pushButton_8 || btn == ui->pushButton_9 ||
+            btn == ui->pushButton_dot ||
+            btn == ui->pushButton_add || btn == ui->pushButton_minu ||
+            btn == ui->pushButton_mul || btn == ui->pushButton_div
+        );
+        
+        if (isDraggable && mouseEvent->button() == Qt::LeftButton) {
             m_isDragging = true;
             m_sourceButton = btn;
             
