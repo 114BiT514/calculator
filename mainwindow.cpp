@@ -8,8 +8,6 @@
 #include <QFont>
 #include <cmath>
 
-#define QT_DEPRECATED_WARNINGS
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
