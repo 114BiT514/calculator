@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QLabel>
 #include <QPushButton>
+#include <QSettings>
 #include "calculatorengine.h"
 #include "financedialog.h"
 
@@ -144,6 +145,14 @@ private:
     QString m_dragText;          // 拖拽的文本内容
     QLabel *m_dragLabel;         // 跟随光标的阴影标签
     QPushButton *m_sourceButton; // 拖拽来源按钮
+    // 财务参数成员变量
+    double m_principal;
+    double m_rate;
+    int m_years;
+    int m_compoundTimes;
+    
+    // 财务参数加载方法
+    void loadFinanceSettings();
+    
 };
-
 #endif // MAINWINDOW_H

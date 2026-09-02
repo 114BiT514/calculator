@@ -2,6 +2,7 @@
 #include "ui_financedialog.h"
 #include <QMessageBox>
 #include <QValidator>
+#include <QSettings>
 
 /*
  * FinanceDialog 构造函数
@@ -18,6 +19,9 @@ FinanceDialog::FinanceDialog(QWidget *parent) :
     // 连接确定按钮信号与槽
     // 当用户点击确定按钮时，执行参数验证并发送信号
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &FinanceDialog::onButtonClick);
+    
+    // 加载上次保存的参数
+    loadSettings();
 }
 
 FinanceDialog::~FinanceDialog()
@@ -40,8 +44,43 @@ void FinanceDialog::onButtonClick()
 
         // 发出信号，将参数传递给主窗口
         emit parametersSet(principal, rate, years, compoundTimes);
+        
+        // 保存参数以便下次使用
+        saveSettings();
+        
         accept(); // 关闭对话框
     }
+}
+
+/*
+ * 使用 QSettings 加载上次保存的财务参数
+ * 实现参数持久化，避免每次重新设置
+ */
+void FinanceDialog::loadSettings()
+{
+    QSettings settings("CalculatorOrg", "FinancialCalculator");
+    ui->lineEdit_principal->setText(settings.value("principal", "10000").toString());
+    ui->lineEdit_rate->setText(settings.value("rate", "5").toString());
+    ui->spinBox_years->setValue(settings.value("years", 1).toInt());
+    int compoundIndex = settings.value("compoundTimes", 12).toInt();
+    if (compoundIndex == 1) ui->comboBox_compound->setCurrentIndex(0);
+    else if (compoundIndex == 2) ui->comboBox_compound->setCurrentIndex(1);
+    else if (compoundIndex == 4) ui->comboBox_compound->setCurrentIndex(2);
+    else ui->comboBox_compound->setCurrentIndex(3);
+}
+
+/*
+ * 使用 QSettings 保存当前财务参数
+ * 下次打开对话框时将自动恢复这些值
+ */
+void FinanceDialog::saveSettings()
+{
+    QSettings settings("CalculatorOrg", "FinancialCalculator");
+    settings.setValue("principal", ui->lineEdit_principal->text());
+    settings.setValue("rate", ui->lineEdit_rate->text());
+    settings.setValue("years", ui->spinBox_years->value());
+    int compoundTimes = ui->comboBox_compound->currentIndex() + 1;
+    settings.setValue("compoundTimes", compoundTimes);
 }
 
 /*

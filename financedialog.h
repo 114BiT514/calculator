@@ -45,6 +45,18 @@ private:
      * 验证输入参数是否合法
      */
     bool validateInputs();
+
+    /*
+     * 使用 QSettings 加载上次保存的财务参数
+     * 实现参数持久化，避免每次重新设置
+     */
+    void loadSettings();
+
+    /*
+     * 使用 QSettings 保存当前财务参数
+     * 下次打开对话框时自动恢复
+     */
+    void saveSettings();
 };
 
 #endif // FINANCEDIALOG_H

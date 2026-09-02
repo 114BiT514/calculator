@@ -5,6 +5,7 @@
 #include <QPushButton>
 #include <QPoint>
 #include <QApplication>
+#include <QSettings>
 #include <QFont>
 #include <cmath>
 #include <QEvent>
@@ -75,6 +76,9 @@ MainWindow::MainWindow(QWidget *parent)
     
     // 在状态栏显示提示信息
     statusBar()->showMessage("欢迎使用财务计算器 - 可以点击按钮或拖拽数字/运算符到输入区域");
+    
+    // 加载保存的财务参数
+    loadFinanceSettings();
 }
 
 MainWindow::~MainWindow()
@@ -232,21 +236,64 @@ void MainWindow::onFinanceParametersSet(double principal, double rate, int years
 }
 
 /*
+ * 加载保存的财务参数
+ */
+void MainWindow::loadFinanceSettings()
+{
+    QSettings settings("CalculatorOrg", "FinancialCalculator");
+    m_principal = settings.value("principal", 10000.0).toDouble();
+    m_rate = settings.value("rate", 5.0).toDouble();
+    m_years = settings.value("years", 1).toInt();
+    m_compoundTimes = settings.value("compoundTimes", 12).toInt();
+}
+
+/*
  * 单利计算按钮点击处理
- * 打开财务参数对话框并执行单利计算
+ * 直接使用保存的财务参数进行单利计算
  */
 void MainWindow::onSimpleInterestClicked()
 {
-    onFinanceSettingsClicked();
+    loadFinanceSettings();
+    
+    double rateDecimal = m_rate / 100.0;
+    double result = m_engine->calculateSimpleInterest(m_principal, rateDecimal, m_years);
+    
+    QString msg = QString("单利计算结果\n\n")
+                + QString("本金: ¥%1\n").arg(m_principal, 0, 'f', 2)
+                + QString("年利率: %1%\n").arg(m_rate)
+                + QString("年限: %1年\n").arg(m_years)
+                + QString("\n本息和: ¥%1\n").arg(result, 0, 'f', 2)
+                + QString("利息: ¥%1").arg(result - m_principal, 0, 'f', 2);
+    
+    ui->lineEdit_out->setText(QString("单利: ¥%1").arg(result, 0, 'f', 2));
+    setResultStyle(false);
+    QMessageBox::information(this, "单利计算结果", msg);
+    statusBar()->showMessage("单利计算完成");
 }
 
 /*
  * 复利计算按钮点击处理
- * 打开财务参数对话框并执行复利计算
+ * 直接使用保存的财务参数进行复利计算
  */
 void MainWindow::onCompoundInterestClicked()
 {
-    onFinanceSettingsClicked();
+    loadFinanceSettings();
+    
+    double rateDecimal = m_rate / 100.0;
+    double result = m_engine->calculateCompoundInterest(m_principal, rateDecimal, m_years, m_compoundTimes);
+    
+    QString msg = QString("复利计算结果\n\n")
+                + QString("本金: ¥%1\n").arg(m_principal, 0, 'f', 2)
+                + QString("年利率: %1%\n").arg(m_rate)
+                + QString("年限: %1年\n").arg(m_years)
+                + QString("复利次数: %1次/年\n\n").arg(m_compoundTimes)
+                + QString("本息和: ¥%1\n").arg(result, 0, 'f', 2)
+                + QString("利息: ¥%1").arg(result - m_principal, 0, 'f', 2);
+    
+    ui->lineEdit_out->setText(QString("复利: ¥%1").arg(result, 0, 'f', 2));
+    setResultStyle(false);
+    QMessageBox::information(this, "复利计算结果", msg);
+    statusBar()->showMessage("复利计算完成");
 }
 
 /*
