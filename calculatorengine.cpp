@@ -119,6 +119,30 @@ bool CalculatorEngine::validateExpression(const QString& expression)
         return false;
     }
 
+    // 检查连续小数点
+    if (expression.contains("..")) {
+        errorMessage = QString("表达式格式错误：连续小数点");
+        return false;
+    }
+
+    // 检查每个小数点的前后位置是否合法
+    for (int i = 0; i < expression.length(); ++i) {
+        if (expression[i] == '.') {
+            // 小数点前不能是运算符或左括号（也不能在开头）
+            if (i == 0 || expression[i-1] == '+' || expression[i-1] == '-' ||
+                expression[i-1] == '*' || expression[i-1] == '/' || expression[i-1] == '(') {
+                errorMessage = QString("表达式格式错误：小数点位置不合法");
+                return false;
+            }
+            // 小数点后不能是运算符或右括号（也不能在结尾）
+            if (i == expression.length() - 1 || expression[i+1] == '+' || expression[i+1] == '-' ||
+                expression[i+1] == '*' || expression[i+1] == '/' || expression[i+1] == ')') {
+                errorMessage = QString("表达式格式错误：小数点位置不合法");
+                return false;
+            }
+        }
+    }
+
     // 检查运算符是否相邻
     for (int i = 0; i < expression.length() - 1; i++) {
         QChar c1 = expression[i];
