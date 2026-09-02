@@ -152,20 +152,29 @@ void MainWindow::onClearClicked()
 {
     ui->lineEdit_in->clear();
     ui->lineEdit_out->clear();
+    setResultStyle(false);
     statusBar()->showMessage("已清除");
 }
 
 /*
  * 退格功能
- * 删除表达式最后一个字符
+ * 删除表达式最后一个字符，并清空之前的结果
  */
 void MainWindow::onBackspaceClicked()
 {
+    // 退格时也清空之前的结果
+    if (!ui->lineEdit_out->text().isEmpty()) {
+        ui->lineEdit_out->clear();
+        setResultStyle(true);
+    }
     QString expr = ui->lineEdit_in->text();
     if (!expr.isEmpty()) {
         expr.chop(1);
         ui->lineEdit_in->setText(expr);
     }
+    
+    // 实时预览计算结果
+    previewResult();
 }
 
 /*
@@ -215,10 +224,20 @@ void MainWindow::onCompoundInterestClicked()
 
 /*
  * 追加文本到表达式输入框
+ * 如果结果显示区域已有内容，新输入时先清空结果
  */
 void MainWindow::appendToExpression(const QString &text)
 {
+    // 如果结果显示区域有内容，新输入时先清空结果
+    if (!ui->lineEdit_out->text().isEmpty()) {
+        ui->lineEdit_out->clear();
+        // 重置为默认样式
+        setResultStyle(true);
+    }
     ui->lineEdit_in->setText(ui->lineEdit_in->text() + text);
+    
+    // 实时预览计算结果
+    previewResult();
 }
 
 /*
@@ -236,6 +255,8 @@ void MainWindow::performCalculation()
     QString result;
     if (m_engine->calculate(expression, result)) {
         ui->lineEdit_out->setText(result);
+        // 正式结果以黑色显示
+        setResultStyle(false);
         statusBar()->showMessage("计算完成");
     } else {
         /*
@@ -378,5 +399,61 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
     }
     
     QMainWindow::mouseReleaseEvent(event);
+}
+
+/*
+ * 实时预览计算结果（以灰色显示）
+ * 当用户输入表达式时，尝试进行计算：
+ * - 如果表达式可计算，则在结果框中以灰色显示预览结果
+ * - 如果表达式不完整或有语法错误，保持结果框不变
+ */
+void MainWindow::previewResult()
+{
+    QString expression = ui->lineEdit_in->text();
+    if (expression.isEmpty()) {
+        ui->lineEdit_out->clear();
+        return;
+    }
+    
+    QString result;
+    if (m_engine->calculate(expression, result)) {
+        ui->lineEdit_out->setText(result);
+        // 预览结果以灰色显示
+        setResultStyle(true);
+    }
+    // 如果表达式不完整无法计算，不改变结果框
+}
+
+/*
+ * 设置结果框样式
+ * @param isPreview true为预览模式（灰色），false为正式结果（黑色）
+ */
+void MainWindow::setResultStyle(bool isPreview)
+{
+    if (isPreview) {
+        // 预览模式：灰色文字
+        ui->lineEdit_out->setStyleSheet(
+            "QLineEdit {"
+            "    background-color: #f9f9f9;"
+            "    border: 2px solid #bdc3c7;"
+            "    border-radius: 5px;"
+            "    padding: 5px;"
+            "    font-size: 16px;"
+            "    color: #999999;"
+            "}"
+        );
+    } else {
+        // 正式结果：黑色文字
+        ui->lineEdit_out->setStyleSheet(
+            "QLineEdit {"
+            "    background-color: white;"
+            "    border: 2px solid #27ae60;"
+            "    border-radius: 5px;"
+            "    padding: 5px;"
+            "    font-size: 16px;"
+            "    color: black;"
+            "}"
+        );
+    }
 }
 

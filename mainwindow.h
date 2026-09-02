@@ -125,6 +125,18 @@ private:
      */
     void performFinanceCalculation(double principal, double rate, int years, int compoundTimes);
 
+    /*
+     * 实时预览计算结果（灰色显示）
+     * 当用户输入表达式时，尝试计算并预览结果
+     */
+    void previewResult();
+
+    /*
+     * 设置结果框样式
+     * @param isPreview 是否为预览模式（灰色），false为正式结果（黑色）
+     */
+    void setResultStyle(bool isPreview);
+
     // 鼠标拖拽相关成员
     bool m_isDragging;           // 是否正在拖拽
     QString m_dragText;          // 拖拽的文本内容
