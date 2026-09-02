@@ -227,12 +227,21 @@ void MainWindow::onFinanceSettingsClicked()
 }
 
 /*
- * 接收财务参数并执行计算
- * 这是跨窗口通信的接收端槽函数
+ * 接收财务参数（跨窗口通信 - 信号与槽）
+ * 当FinanceDialog发出 parametersSet 信号时，此槽函数被调用
+ * 将参数保存到QSettings，供单利/复利按钮使用
+ * 注意：不再自动执行计算，用户需手动点击"计算单利"或"计算复利"
  */
 void MainWindow::onFinanceParametersSet(double principal, double rate, int years, int compoundTimes)
 {
-    performFinanceCalculation(principal, rate, years, compoundTimes);
+    QSettings settings("CalculatorOrg", "FinancialCalculator");
+    settings.setValue("principal", principal);
+    settings.setValue("rate", rate);
+    settings.setValue("years", years);
+    settings.setValue("compoundTimes", compoundTimes);
+    
+    statusBar()->showMessage("财务参数已更新");
+    loadFinanceSettings();
 }
 
 /*

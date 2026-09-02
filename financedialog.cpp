@@ -31,22 +31,20 @@ FinanceDialog::~FinanceDialog()
 
 /*
  * 确定按钮槽函数
- * 验证输入参数后发出 parametersSet 信号
- * 这是跨窗口通信的关键：通过信号将对话框数据传递给主窗口
+ * 验证输入参数后，通过信号与槽将参数传递给主窗口，并保存设置
  */
 void FinanceDialog::onButtonClick()
 {
     if (validateInputs()) {
+        // 保存参数
+        saveSettings();
+        
+        // 通过信号与槽将财务参数传递给主窗口（跨窗口通信）
         double principal = ui->lineEdit_principal->text().toDouble();
         double rate = ui->lineEdit_rate->text().toDouble();
         int years = ui->spinBox_years->value();
-        int compoundTimes = ui->comboBox_compound->currentIndex() + 1; // 1=每年, 2=每半年, 4=每季度, 12=每月
-
-        // 发出信号，将参数传递给主窗口
+        int compoundTimes = ui->comboBox_compound->currentIndex() + 1;
         emit parametersSet(principal, rate, years, compoundTimes);
-        
-        // 保存参数以便下次使用
-        saveSettings();
         
         accept(); // 关闭对话框
     }
