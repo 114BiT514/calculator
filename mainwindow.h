@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QLabel>
+#include <QPushButton>
 #include "calculatorengine.h"
 #include "financedialog.h"
 
@@ -87,6 +88,18 @@ private slots:
      * 这是跨窗口通信的核心槽函数
      */
     void onFinanceParametersSet(double principal, double rate, int years, int compoundTimes);
+
+    /*
+     * 单利计算按钮槽函数
+     * 打开财务对话框并默认选择单利计算
+     */
+    void onSimpleInterestClicked();
+
+    /*
+     * 复利计算按钮槽函数
+     * 打开财务对话框并默认选择复利计算
+     */
+    void onCompoundInterestClicked();
 
 private:
     Ui::MainWindow *ui;

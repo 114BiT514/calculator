@@ -10,6 +10,9 @@ CalculatorEngine::CalculatorEngine()
 
 bool CalculatorEngine::calculate(const QString& expression, QString& result)
 {
+    // 清除之前的错误信息
+    errorMessage.clear();
+
     // 清理表达式
     QString cleaned = cleanExpression(expression);
 
@@ -24,6 +27,11 @@ bool CalculatorEngine::calculate(const QString& expression, QString& result)
 
     // 计算后缀表达式
     double res = evaluatePostfix(postfix);
+
+    // 检查计算过程中是否发生错误（如除零）
+    if (!errorMessage.isEmpty()) {
+        return false;
+    }
 
     // 检查是否溢出
     if (std::isinf(res) || std::isnan(res)) {
@@ -71,6 +79,19 @@ bool CalculatorEngine::validateExpression(const QString& expression)
 {
     if (expression.isEmpty()) {
         errorMessage = QString("表达式不能为空");
+        return false;
+    }
+
+    // 不能以运算符开头（除了开头的负号）
+    if (expression[0] == '+' || expression[0] == '*' || expression[0] == '/') {
+        errorMessage = QString("表达式格式错误");
+        return false;
+    }
+
+    // 不能以运算符结尾
+    if (expression.back() == '+' || expression.back() == '-' ||
+        expression.back() == '*' || expression.back() == '/') {
+        errorMessage = QString("表达式不能以运算符结尾");
         return false;
     }
 

@@ -5,9 +5,10 @@
 #include <QPushButton>
 #include <QPoint>
 #include <QApplication>
-#include <QClipboard>
 #include <QFont>
 #include <cmath>
+
+#define QT_DEPRECATED_WARNINGS
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -87,9 +88,25 @@ void MainWindow::setupButtonConnections()
     // 连接功能按钮
     connect(ui->pushButton_cal, &QPushButton::clicked, this, &MainWindow::onCalculateClicked);
     connect(ui->pushButton_rm, &QPushButton::clicked, this, &MainWindow::onBackspaceClicked);
-    
+    /*
+     * 清除按钮（C）：清空表达式输入和结果显示
+     */
+    connect(ui->pushButton_c, &QPushButton::clicked, this, &MainWindow::onClearClicked);
+
+    /*
+     * 小数点按钮：追加小数点到表达式
+     */
+    connect(ui->pushButton_dot, &QPushButton::clicked, this, &MainWindow::onNumberButtonClicked);
+
     // 连接财务参数设置按钮
     connect(ui->pushButton, &QPushButton::clicked, this, &MainWindow::onFinanceSettingsClicked);
+
+    /*
+     * 财务计算按钮：点击后打开财务参数对话框
+     * 单利/复利按钮都打开同一个对话框，区别在于选择计算方式
+     */
+    connect(ui->pushButton_simple, &QPushButton::clicked, this, &MainWindow::onSimpleInterestClicked);
+    connect(ui->pushButton_compound, &QPushButton::clicked, this, &MainWindow::onCompoundInterestClicked);
 }
 
 /*
@@ -181,6 +198,24 @@ void MainWindow::onFinanceParametersSet(double principal, double rate, int years
 }
 
 /*
+ * 单利计算按钮点击处理
+ * 打开财务参数对话框并执行单利计算
+ */
+void MainWindow::onSimpleInterestClicked()
+{
+    onFinanceSettingsClicked();
+}
+
+/*
+ * 复利计算按钮点击处理
+ * 打开财务参数对话框并执行复利计算
+ */
+void MainWindow::onCompoundInterestClicked()
+{
+    onFinanceSettingsClicked();
+}
+
+/*
  * 追加文本到表达式输入框
  */
 void MainWindow::appendToExpression(const QString &text)
@@ -264,7 +299,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
          * 检查鼠标点击位置是否在某个按钮上
          * 如果是，则开始拖拽操作
          */
-        QPoint pos = event->pos();
+        QPoint pos = event->position().toPoint();
         
         // 检查所有数字按钮
         QPushButton *buttons[] = {
