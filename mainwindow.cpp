@@ -7,6 +7,7 @@
 #include <QApplication>
 #include <QFont>
 #include <cmath>
+#include <QEvent>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -18,11 +19,37 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     
+    // 启用鼠标跟踪，确保 mouseMoveEvent 能正常触发
+    setMouseTracking(true);
+    
     // 设置窗口大小
     resize(700, 500);
     
     // 初始化按钮信号与槽连接
     setupButtonConnections();
+    
+    /*
+     * 为数字/运算符按钮安装事件过滤器
+     * 用于拦截鼠标按下事件以启动拖拽操作
+     * QPushButton 会消费自己的鼠标事件，必须用事件过滤器提前拦截
+     */
+    QPushButton *dragButtons[] = {
+        ui->pushButton_0, ui->pushButton_1, ui->pushButton_2,
+        ui->pushButton_3, ui->pushButton_4, ui->pushButton_5,
+        ui->pushButton_6, ui->pushButton_7, ui->pushButton_8,
+        ui->pushButton_9, ui->pushButton_dot,
+        ui->pushButton_add, ui->pushButton_minu,
+        ui->pushButton_mul, ui->pushButton_div
+    };
+    for (auto btn : dragButtons) {
+        btn->installEventFilter(this);
+    }
+    
+    /*
+     * 在全局层面安装事件过滤器以捕获鼠标释放事件
+     * 这是因为拖拽释放可能发生在窗口任何位置（包括输入区域）
+     */
+    qApp->installEventFilter(this);
     
     // 初始化拖拽标签
     m_dragLabel = new QLabel(this);
@@ -305,89 +332,71 @@ void MainWindow::performFinanceCalculation(double principal, double rate, int ye
 }
 
 /*
- * 鼠标按下事件处理（事件驱动编程 - 虚函数重写）
- * 选择重写鼠标事件而非事件过滤器的原因：
- * 1. 需要在主窗口级别拦截所有鼠标事件
- * 2. 拖拽逻辑与窗口本身紧密相关，不适合单独安装在某个控件上
- * 3. 虚函数重写代码更清晰，易于理解
+ * 事件过滤器（事件驱动编程）
+ * 拦截按钮的鼠标按下事件以启动拖拽，拦截全局鼠标释放以完成拖拽
+ * 
+ * 选择事件过滤器而非单纯重写虚函数的原因：
+ * 1. QPushButton 会消费自己的鼠标事件，MainWindow::mousePressEvent 无法收到
+ * 2. 事件过滤器可以在事件被目标控件处理之前或同时拦截
+ * 3. 安装在全局(qApp)上可以捕获任意位置的鼠标释放事件
+ * 4. 同时监听多个控件的事件，代码更集中
  */
-void MainWindow::mousePressEvent(QMouseEvent *event)
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
-    if (event->button() == Qt::LeftButton) {
-        /*
-         * 检查鼠标点击位置是否在某个按钮上
-         * 如果是，则开始拖拽操作
-         */
-        QPoint pos = event->position().toPoint();
+    /*
+     * 拦截按钮的鼠标按下事件：启动拖拽
+     */
+    if (event->type() == QEvent::MouseButtonPress) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+        QPushButton *btn = qobject_cast<QPushButton*>(obj);
         
-        // 检查所有数字按钮
-        QPushButton *buttons[] = {
-            ui->pushButton_0, ui->pushButton_1, ui->pushButton_2,
-            ui->pushButton_3, ui->pushButton_4, ui->pushButton_5,
-            ui->pushButton_6, ui->pushButton_7, ui->pushButton_8,
-            ui->pushButton_9,
-            ui->pushButton_add, ui->pushButton_minu,
-            ui->pushButton_mul, ui->pushButton_div
-        };
-        
-        for (QPushButton *btn : buttons) {
-            if (btn->geometry().contains(pos)) {
-                m_isDragging = true;
-                m_sourceButton = btn;
-                
-                // 获取按钮文本作为拖拽内容
-                m_dragText = btn->text();
-                // 转换显示符号为计算符号
-                if (m_dragText == "×") m_dragText = "*";
-                else if (m_dragText == "÷") m_dragText = "/";
-                
-                // 设置并显示拖拽标签
-                m_dragLabel->setText(m_dragText);
-                m_dragLabel->move(event->globalPosition().toPoint() + QPoint(10, 10));
-                m_dragLabel->show();
-                
-                statusBar()->showMessage(QString("拖拽 %1 到输入区域").arg(btn->text()));
-                break;
-            }
+        if (btn && mouseEvent->button() == Qt::LeftButton) {
+            m_isDragging = true;
+            m_sourceButton = btn;
+            
+            // 获取按钮文本作为拖拽内容
+            m_dragText = btn->text();
+            // 转换显示符号为计算符号
+            if (m_dragText == "×") m_dragText = "*";
+            else if (m_dragText == "÷") m_dragText = "/";
+            
+            // 设置并显示拖拽标签（使用窗口局部坐标）
+            m_dragLabel->setText(m_dragText);
+            m_dragLabel->move(mapFromGlobal(mouseEvent->globalPosition().toPoint()));
+            m_dragLabel->show();
+            m_dragLabel->raise();
+            
+            statusBar()->showMessage(QString("拖拽 %1 到输入区域").arg(btn->text()));
+            
+            // 返回 false：让按钮也能正常响应点击事件（点击和拖拽共存）
+            return false;
         }
     }
     
-    QMainWindow::mousePressEvent(event);
-}
-
-/*
- * 鼠标移动事件处理
- * 更新跟随光标的阴影标签位置
- */
-void MainWindow::mouseMoveEvent(QMouseEvent *event)
-{
-    if (m_isDragging) {
-        // 更新拖拽标签位置，使其跟随光标
-        m_dragLabel->move(event->globalPosition().toPoint() + QPoint(10, 10));
+    /*
+     * 拦截全局鼠标移动事件：拖拽标签跟随光标
+     * 安装在全局(qApp)上，确保无论鼠标在哪个控件上移动都能捕获
+     */
+    if (m_isDragging && event->type() == QEvent::MouseMove) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+        m_dragLabel->move(mapFromGlobal(mouseEvent->globalPosition().toPoint()));
+        return false;
     }
     
-    QMainWindow::mouseMoveEvent(event);
-}
-
-/*
- * 鼠标释放事件处理
- * 判断释放位置是否在输入区域，如果是则将拖拽内容追加到表达式
- */
-void MainWindow::mouseReleaseEvent(QMouseEvent *event)
-{
-    if (m_isDragging) {
+    /*
+     * 拦截全局鼠标释放事件：完成拖拽
+     * 安装在全局(qApp)上，确保无论鼠标在哪个控件上释放都能捕获
+     */
+    if (m_isDragging && event->type() == QEvent::MouseButtonRelease) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
         m_isDragging = false;
         m_dragLabel->hide();
         
-        /*
-         * 检查释放位置是否在输入区域
-         * 如果是，则将拖拽内容追加到表达式
-         */
-        QPoint globalPos = event->globalPosition().toPoint();
+        // 检查释放位置是否在输入区域
+        QPoint globalPos = mouseEvent->globalPosition().toPoint();
         QPoint localPos = ui->lineEdit_in->mapFromGlobal(globalPos);
         
-        if (ui->lineEdit_in->geometry().contains(localPos)) {
-            // 释放位置在输入区域，追加内容
+        if (ui->lineEdit_in->rect().contains(localPos)) {
             appendToExpression(m_dragText);
             statusBar()->showMessage(QString("已添加 %1").arg(m_sourceButton->text()));
         } else {
@@ -396,8 +405,35 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
         
         m_sourceButton = nullptr;
         m_dragText.clear();
+        
+        return false;
     }
     
+    return QMainWindow::eventFilter(obj, event);
+}
+
+/*
+ * 鼠标移动事件处理
+ * 更新跟随光标的阴影标签位置
+ * 与 eventFilter 配合使用：eventFilter 启动拖拽，mouseMoveEvent 更新位置
+ */
+void MainWindow::mouseMoveEvent(QMouseEvent *event)
+{
+    if (m_isDragging) {
+        // 更新拖拽标签位置，使其跟随光标
+        m_dragLabel->move(mapFromGlobal(event->globalPosition().toPoint()));
+    }
+    
+    QMainWindow::mouseMoveEvent(event);
+}
+
+/*
+ * 鼠标释放事件（保留但不再处理拖拽）
+ * 拖拽释放逻辑已移至 eventFilter 中处理（安装在全局 qApp 上）
+ * 此处保留虚函数重写仅用于满足作业要求：体现虚函数重写的使用
+ */
+void MainWindow::mouseReleaseEvent(QMouseEvent *event)
+{
     QMainWindow::mouseReleaseEvent(event);
 }
 

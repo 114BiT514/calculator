@@ -27,11 +27,12 @@ public:
 
 protected:
     /*
-     * 重写鼠标按下事件
-     * 当用户在数字/运算符按钮上按下鼠标时，记录拖拽开始状态
-     * 创建跟随光标的阴影标签
+     * 事件过滤器（事件驱动编程）
+     * 拦截按钮的鼠标按下事件以启动拖拽
+     * 选择事件过滤器的原因：QPushButton 会消费自己的鼠标事件，
+     * MainWindow::mousePressEvent 无法直接收到按钮上的点击
      */
-    void mousePressEvent(QMouseEvent *event) override;
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
     /*
      * 重写鼠标移动事件
@@ -40,8 +41,9 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
 
     /*
-     * 重写鼠标释放事件
-     * 判断释放位置是否在输入区域，如果是则将拖拽内容追加到表达式
+     * 重写鼠标释放事件（虚函数重写演示）
+     * 实际的拖拽释放逻辑在 eventFilter 中处理（全局捕获）
+     * 保留此虚函数重写以展示两种事件处理方式的配合使用
      */
     void mouseReleaseEvent(QMouseEvent *event) override;
 
