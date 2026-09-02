@@ -34,7 +34,7 @@ QLineEdit:focus {
     border-color: #3498db;
 }
 
-/* 数字按钮 */
+/* 数字按钮 - 浅灰底深灰文字 */
 QPushButton {
     background-color: #ecf0f1;
     border: 1px solid #bdc3c7;
@@ -54,97 +54,84 @@ QPushButton:pressed {
     background-color: #bdc3c7;
 }
 
-/* 运算符按钮 */
+/* 运算符按钮 - 与数字按钮同风格，但文字蓝色加粗 */
 QPushButton#pushButton_add,
 QPushButton#pushButton_minu,
 QPushButton#pushButton_mul,
 QPushButton#pushButton_div {
-    background-color: #3498db;
-    color: white;
+    color: #3498db;
     font-weight: bold;
 }
 
-QPushButton#pushButton_add:hover,
-QPushButton#pushButton_minu:hover,
-QPushButton#pushButton_mul:hover,
-QPushButton#pushButton_div:hover {
-    background-color: #2980b9;
-}
-
-QPushButton#pushButton_add:pressed,
-QPushButton#pushButton_minu:pressed,
-QPushButton#pushButton_mul:pressed,
-QPushButton#pushButton_div:pressed {
-    background-color: #2470a0;
-}
-
-/* 清除按钮 */
+/* 清除按钮 - 白底红色文字 */
 QPushButton#pushButton_c {
-    background-color: #e74c3c;
-    color: white;
+    background-color: white;
+    border: 1px solid #e74c3c;
+    color: #e74c3c;
     font-weight: bold;
 }
 
 QPushButton#pushButton_c:hover {
-    background-color: #c0392b;
+    background-color: #e74c3c;
+    color: white;
 }
 
 QPushButton#pushButton_c:pressed {
-    background-color: #a93226;
-}
-
-/* 退格按钮 */
-QPushButton#pushButton_rm {
-    background-color: #e67e22;
+    background-color: #c0392b;
     color: white;
-    font-weight: bold;
 }
 
-QPushButton#pushButton_rm:hover {
-    background-color: #d35400;
+/* 退格按钮 - 白底深灰文字，文字稍大 */
+QPushButton#pushButton_rm {
+    background-color: white;
+    border: 1px solid #bdc3c7;
+    color: #7f8c8d;
 }
 
-QPushButton#pushButton_rm:pressed {
-    background-color: #b84900;
-}
-
-/* 计算按钮 */
+/* 计算按钮 - 蓝色背景白色文字（主要操作按钮） */
 QPushButton#pushButton_cal {
-    background-color: #27ae60;
+    background-color: #3498db;
+    border: 1px solid #3498db;
     color: white;
     font-weight: bold;
     font-size: 20px;
 }
 
 QPushButton#pushButton_cal:hover {
-    background-color: #219653;
+    background-color: #2980b9;
+    border-color: #2980b9;
 }
 
 QPushButton#pushButton_cal:pressed {
-    background-color: #1e8a49;
+    background-color: #2470a0;
+    border-color: #2470a0;
 }
 
-/* 财务计算按钮 */
+/* 财务计算按钮 - 深蓝色背景白色文字 */
 QPushButton#pushButton_simple,
 QPushButton#pushButton_compound {
-    background-color: #9b59b6;
+    background-color: #2980b9;
+    border: 1px solid #2980b9;
     color: white;
     font-weight: bold;
 }
 
 QPushButton#pushButton_simple:hover,
 QPushButton#pushButton_compound:hover {
-    background-color: #8e44ad;
+    background-color: #2470a0;
+    border-color: #2470a0;
 }
 
 QPushButton#pushButton_simple:pressed,
 QPushButton#pushButton_compound:pressed {
-    background-color: #7d3c98;
+    background-color: #1f618d;
+    border-color: #1f618d;
 }
 
-/* 财务参数设置按钮 */
+/* 财务参数设置按钮 - 蓝绿背景白色文字 */
 QPushButton#pushButton {
     background-color: #16a085;
+    border: 1px solid #16a085;
     color: white;
     font-weight: bold;
     min-width: 120px;
@@ -152,10 +139,12 @@ QPushButton#pushButton {
 
 QPushButton#pushButton:hover {
     background-color: #138d75;
+    border-color: #138d75;
 }
 
 QPushButton#pushButton:pressed {
     background-color: #117a64;
+    border-color: #117a64;
 }
 
 /* 状态栏 */
